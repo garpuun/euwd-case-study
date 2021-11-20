@@ -23,4 +23,4 @@ This is done so that we can use the common date slicer in the report.
 Similarly, the f_visits table is linked to the Calendar table by the visitDate field.
 
 
-![img.png](img.png)
+![img_1.png](img_1.png)![img.png](img.png)
