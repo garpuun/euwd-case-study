@@ -1,17 +1,14 @@
 package org.example.processor.impl;
 
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.SparkSession;
-import org.example.model.GoldVisitsModel;
-import org.example.model.SilverVisitsModel;
 import org.example.properties.PathProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "runner.service-name = visits-processor"
+})
 class VisitsProcessorTest {
 
     @Autowired

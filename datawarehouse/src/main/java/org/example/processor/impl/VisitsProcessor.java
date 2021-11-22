@@ -10,15 +10,16 @@ import org.example.model.GoldVisitsModel;
 import org.example.model.SilverVisitsModel;
 import org.example.processor.Processor;
 import org.example.properties.PathProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import static org.apache.spark.sql.functions.*;
 
 // Processor implements data processing or entity Visits to Bronze, Silver and Gold layers
 
-
-@Component
 @AllArgsConstructor
+@Component("visits-processor")
+@ConditionalOnProperty(prefix = "runner", value = "service-name", havingValue = "visits-processor")
 public class VisitsProcessor implements Processor<SilverVisitsModel, GoldVisitsModel> {
 
     private final SparkSession sparkSession;

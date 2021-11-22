@@ -5,21 +5,23 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.DoubleType;
 import org.example.mapper.BookingsMapper;
 import org.example.model.GoldBookingsModel;
 import org.example.model.SilverBookingsModel;
 import org.example.processor.Processor;
 import org.example.properties.PathProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-
-import java.util.Locale;
 
 import static org.apache.spark.sql.functions.*;
 
 // Processor implements data processing or entity Bookings to Bronze, Silver and Gold layers
 
-@Component
 @AllArgsConstructor
+@Component("bookings-processor")
+@ConditionalOnProperty(prefix = "runner", value = "service-name", havingValue = "bookings-processor")
 public class BookingsProcessor implements Processor<SilverBookingsModel, GoldBookingsModel> {
 
     private final SparkSession spark;
@@ -52,7 +54,8 @@ public class BookingsProcessor implements Processor<SilverBookingsModel, GoldBoo
     @Override
     public Dataset<SilverBookingsModel> processToSilverLayer() {
         Dataset<Row> dataset = spark.read().parquet(pathProperties.getBronzeLayerBookingsPath());
-        Dataset<SilverBookingsModel> silverBookingsModelDataset = mapper.mapToSilver(dataset).distinct();
+        Dataset<Row> validDataset = validate(dataset);
+        Dataset<SilverBookingsModel> silverBookingsModelDataset = mapper.mapToSilver(validDataset).distinct();
         silverBookingsModelDataset
                 .coalesce(1)
                 .write()
@@ -68,7 +71,7 @@ public class BookingsProcessor implements Processor<SilverBookingsModel, GoldBoo
         Dataset<Row> aggDataset = dataset
                 .withColumn(
                         "route",
-                        concat(col("origin"),lit(" - "), col("destination"))
+                        concat(col("origin"), lit(" - "), col("destination"))
                 )
                 .groupBy(
                         col("distributionChannelId"),
@@ -87,6 +90,19 @@ public class BookingsProcessor implements Processor<SilverBookingsModel, GoldBoo
                 .partitionBy("bookingDate")
                 .parquet(pathProperties.getGoldLayerBookingsPath());
 
-        return null;
+        return goldBookingsModelDataset;
+    }
+
+    private Dataset<Row> validate(Dataset<Row> rowDataset) {
+//        check that flightDate is equal or greater than bookingDate
+//        and revenue has positive value
+        Dataset<Row> dataset = rowDataset
+                .withColumn("hasDateError",
+                        when(to_date(col("flightDate")).$less(to_date(col("bookingDate"))), true).otherwise(false))
+                .withColumn("hasRevenueError",
+                        when(col("revenue").cast("double").$less(lit(0.0)), true).otherwise(false));
+        return dataset
+                .filter(col("hasDateError").equalTo(false)
+                        .and(col("hasRevenueError").equalTo(false)));
     }
 }
