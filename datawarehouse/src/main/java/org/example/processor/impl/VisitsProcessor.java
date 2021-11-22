@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import static org.apache.spark.sql.functions.*;
 
-// Processor implements data processing or entity Visits to Bronze, Silver and Gold layers
+// Processor implements data processing for entity Visits to Bronze, Silver and Gold layers
 
 @AllArgsConstructor
 @Component("visits-processor")
