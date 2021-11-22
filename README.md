@@ -22,5 +22,11 @@ The Calendar table has been created by using function CALENDAR(MIN(f_bookings[bo
 This is done so that we can use the common date slicer in the report.
 Similarly, the f_visits table is linked to the Calendar table by the visitDate field.
 
+## Creating Measures
 
-![img_1.png](img_1.png)![img.png](img.png)
+To calculate revenue by bookingDate, I created a measure in the Calendar table using function SUM(f_bookings[revenue]).
+To calculate revenue by flightDate - CALCULATE(SUM(f_bookings[revenue]), USERELATIONSHIP('Calendar'[Date], f_bookings[flightDate])) also in Calendar.
+I used function USERELATIONSHIP because there is no active USERELATIONSHIP in the data model between flightDate(f_bookings) and Date(Calendar), with function USERELATIONSHIP we can use that relationship.
+To calculate total number visits - SUM(f_visits[visits]).
+
+![img.png](img.png)
