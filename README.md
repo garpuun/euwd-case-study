@@ -25,8 +25,10 @@ Similarly, the f_visits table is linked to the Calendar table by the visitDate f
 ## Creating Measures
 
 To calculate revenue by bookingDate, I created a measure in the Calendar table using function SUM(f_bookings[revenue]). <br />
+
 To calculate revenue by flightDate - CALCULATE(SUM(f_bookings[revenue]), USERELATIONSHIP('Calendar'[Date], f_bookings[flightDate])) also in Calendar. <br />
 I used function USERELATIONSHIP because there is no active USERELATIONSHIP in the data model between flightDate(f_bookings) and Date(Calendar), with function USERELATIONSHIP we can use that relationship. <br />
+
 To calculate total number visits - SUM(f_visits[visits]).
 
 ![img.png](img.png)
