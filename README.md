@@ -15,18 +15,18 @@ I decided to use the gold layer in the datalake and save the aggregated data int
 
 ## Data Model
 
-The data model consists of two aggregated fact tables (f_visits, f_bookings) and three dimension-tables (d_customerGroups, d_distributionChannels, Calendar).
-The table f_bookings has foreign keys to the tables d_customerGroups and d_distributionChannels (One to many relationships), and it also linked to the table Calendar by the fields bookingDate and flightDate.
+The data model consists of two aggregated fact tables (f_visits, f_bookings) and three dimension-tables (d_customerGroups, d_distributionChannels, Calendar). <br />
+The table f_bookings has foreign keys to the tables d_customerGroups and d_distributionChannels (One to many relationships), and it also linked to the table Calendar by the fields bookingDate and flightDate. <br />
 
-The Calendar table has been created by using function CALENDAR(MIN(f_bookings[bookingDate]), MAX(f_bookings[flightDate])), finds the minimum date of booking and maximum date of flight and creates a calendar with the detected date range.
+The Calendar table has been created by using function CALENDAR(MIN(f_bookings[bookingDate]), MAX(f_bookings[flightDate])), finds the minimum date of booking and maximum date of flight and creates a calendar with the detected date range. <br />
 This is done so that we can use the common date slicer in the report.
 Similarly, the f_visits table is linked to the Calendar table by the visitDate field.
 
 ## Creating Measures
 
-To calculate revenue by bookingDate, I created a measure in the Calendar table using function SUM(f_bookings[revenue]).
-To calculate revenue by flightDate - CALCULATE(SUM(f_bookings[revenue]), USERELATIONSHIP('Calendar'[Date], f_bookings[flightDate])) also in Calendar.
-I used function USERELATIONSHIP because there is no active USERELATIONSHIP in the data model between flightDate(f_bookings) and Date(Calendar), with function USERELATIONSHIP we can use that relationship.
+To calculate revenue by bookingDate, I created a measure in the Calendar table using function SUM(f_bookings[revenue]). <br />
+To calculate revenue by flightDate - CALCULATE(SUM(f_bookings[revenue]), USERELATIONSHIP('Calendar'[Date], f_bookings[flightDate])) also in Calendar. <br />
+I used function USERELATIONSHIP because there is no active USERELATIONSHIP in the data model between flightDate(f_bookings) and Date(Calendar), with function USERELATIONSHIP we can use that relationship. <br />
 To calculate total number visits - SUM(f_visits[visits]).
 
 ![img.png](img.png)
